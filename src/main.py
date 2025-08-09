@@ -10,7 +10,6 @@ import os
 from models import User
 from models import Option
 
-users :list[User] = []
 
 
 
@@ -29,13 +28,6 @@ async def root():
         "age": 18
     }
 
-@app.post("/add/user")
-async def add_user(user: User):
-    users.append(user)
-    print(get_current_memory_usage())
-    return {
-        "success": "ok"
-    }
 
 
 names = ["ali", "abubakar", "umer", "ahmad"]
@@ -126,3 +118,46 @@ async def enum_query(option: Option):
         'option': option
     }
 
+
+# Models in request body
+    # 1. Use pydantic models to use in fastapi
+    # 2. models are validated by pydantic
+    # 3.1. you can have required attributes and optional attributes
+    # 3.2. for option you need to give default values
+    # 4. Yuu can use Field() to enforece validations (refer to models.py) 
+
+users :list[User] = []
+
+@app.post("/add/user")
+async def add_user(user: User):
+    users.append(user)
+    print(get_current_memory_usage()) # ignore this, prints around 50MB in win11, py3.12.6    (:
+    print(user)
+    return {
+        "success": "ok", 
+        "data": user.model_dump()
+    }
+
+# A sample endpoint with requestbody, path params, query params 
+@app.post("/user/{option}")
+async def sample_complete_endpoint(
+        user: User,
+        option: Option,
+        description: bool,
+        message: str | None = None 
+):
+    res = {
+        "user": user.model_dump(),
+        "option": {
+            "optionName": option.name,
+            "optionValue": option.value
+        },
+        "description": description
+    }
+
+    
+    res.update({
+        "message": message if message else "message to likh de bhai"
+    })
+
+    return res
