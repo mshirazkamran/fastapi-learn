@@ -1,7 +1,5 @@
 from fastapi import FastAPI
 
-import urllib.request
-import json
 import time
 
 import psutil
